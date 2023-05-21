@@ -1,5 +1,12 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<CraveWheels.Models.Product>
 @{
+    ViewData["Title"] = ViewData["Name"];
 }
+<h1>Find Great food at @ViewData["Name"]</h1>
+<ul>
+    @foreach(var product in Model)
+    {
+        <li>@product.Name</li>    
+    }
+</ul>
+
