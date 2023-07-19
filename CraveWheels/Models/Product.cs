@@ -8,9 +8,10 @@ namespace CraveWheels.Models
         public string Name { get; set; }
 
         [Range (0.01, 10000)]
+        [DisplayFormat(DataFormatString = "{0:c}")]  // uses MS currency format
         public decimal Price { get; set; }
         //public decimal testvar { get; set; }
-
+        public string? Photo { get; set; }
         //Parent refercne
 
         public int RestaurantId { get; set; }

@@ -7,9 +7,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CraveWheels.Data;
 using CraveWheels.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CraveWheels.Controllers
 {
+    //this authorize annontaion is used to make every method in this controlller class to be only accessed by logged in user 
+    //if this annontation was done above the 
+    [Authorize(Roles = "Administrator")]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,11 +26,15 @@ namespace CraveWheels.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Products.Include(p => p.Restaurant);
+            var applicationDbContext = _context.Products.Include(p => p.Restaurant)
+                .OrderBy(p => p.Restaurant.Name)
+                .ThenBy(p => p.Name);
             return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: Products/Details/5
+        //we are overriding the authorize annotation above the class with the below annotation
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Products == null)
@@ -48,7 +56,7 @@ namespace CraveWheels.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            ViewData["RestaurantId"] = new SelectList(_context.Restaurants, "RestaurantId", "Name");
+            ViewData["RestaurantId"] = new SelectList(_context.Restaurants.OrderBy(r => r.Name), "RestaurantId", "Name");
             return View();
         }
 
@@ -57,10 +65,14 @@ namespace CraveWheels.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductID,Name,Price,RestaurantId")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductID,Name,Price,RestaurantId")] Product product, IFormFile? Photo)
         {
             if (ModelState.IsValid)
             {
+                if (Photo != null) {
+                    var fileName = UploadPhoto(Photo);
+                    product.Photo = fileName;
+                }
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -91,7 +103,7 @@ namespace CraveWheels.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductID,Name,Price,RestaurantId")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductID,Name,Price,RestaurantId")] Product product,IFormFile? Photo,string? CurrentPhoto)
         {
             if (id != product.ProductID)
             {
@@ -102,6 +114,16 @@ namespace CraveWheels.Controllers
             {
                 try
                 {
+                    //Upload a photo must happen before we call Update and Save
+                    if (Photo != null)
+                    {
+                        var fileName = UploadPhoto(Photo);
+                        product.Photo = fileName;
+                    }
+                    else {
+                        //this the hiddden input asked by the edit form
+                        product.Photo = CurrentPhoto;
+                    }
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                 }
@@ -118,7 +140,7 @@ namespace CraveWheels.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RestaurantId"] = new SelectList(_context.Restaurants, "RestaurantId", "Name", product.RestaurantId);
+            ViewData["RestaurantId"] = new SelectList(_context.Restaurants.OrderBy(r => r.Name), "RestaurantId", "Name", product.RestaurantId);
             return View(product);
         }
 
@@ -163,6 +185,24 @@ namespace CraveWheels.Controllers
         private bool ProductExists(int id)
         {
           return (_context.Products?.Any(e => e.ProductID == id)).GetValueOrDefault();
+        }
+        private static string UploadPhoto(IFormFile Photo)
+        {
+            // get temp location of upload
+            var filePath = Path.GetTempFileName();
+
+            // use GUID class to generate unique name.  e.g. food.jpg => a348908sdaf-food.jpg
+            var fileName = Guid.NewGuid().ToString() + "-" + Photo.FileName;
+
+            // set destination path dynamically so it works on any server
+            var uploadPath = System.IO.Directory.GetCurrentDirectory() + "\\wwwroot\\img\\products\\" + fileName;
+
+            using (var stream = new FileStream(uploadPath, FileMode.Create))
+            {
+                Photo.CopyTo(stream);
+            }
+
+            return fileName;
         }
     }
 }

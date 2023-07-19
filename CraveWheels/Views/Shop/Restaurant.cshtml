@@ -3,10 +3,48 @@
     ViewData["Title"] = ViewData["Name"];
 }
 <h1>Find Great food at @ViewData["Name"]</h1>
-<ul>
+@*<ul>
     @foreach(var product in Model)
     {
         <li>@product.Name</li>    
     }
+
+
 </ul>
+*@
+<section class="row card-group">
+    @foreach (var product in Model)
+    {
+        <div class="col-lg-4 mb-3">
+            <div class="card mb-4">
+
+                <div class="card-body text-center h-100">
+                    @if (String.IsNullOrEmpty(product.Photo))
+                    {
+                        //no Photo
+                            <img src="~/img/products/placeholder.gif" alt="PlaceHolder gif" class="img-thumbnail"
+                            style="max-width: 250px"></img>
+                    }
+                    else{
+                        <img src = "~/img/products/@product.Photo" alt = "Image for @product.Name" class="img-thumbnail"
+                         style="max-width: 250px"></img>
+                        
+                        }<br/>
+                        <a asp-action="Details" asp-controller="Products" asp-route-id="@product.ProductID">
+                            @product.Name
+                    </a><br />
+                        <h6>@product.Price.ToString("C")</h6>
+                    </div>
+                    <form method="post" action="ss">
+                        <input type="hidden" id="ProductId" name="ProductId" value="@product.ProductID"></input>
+                        <fieldset>
+                            <label class="form-control" for="Quantity">Qty:</label>
+                            <input id="Quantity" name="Quantity" type="number" min="1" max="99"></input>
+                        </fieldset>
+                    </form>
+            </div>
+        </div>
+    }
+</section>
+
 

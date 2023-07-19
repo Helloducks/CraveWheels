@@ -9,33 +9,44 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+<table class="table sortable">
     <thead>
-        <tr>
+        <tr><th>
+                @Html.DisplayNameFor(model => model.Restaurant)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Restaurant)
-            </th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
+        <tr> 
+            <td>
+                @Html.DisplayFor(modelItem => item.Restaurant.Name)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Price)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Restaurant.Name)
-            </td>
+               <td>
+                    @if (item.Photo != null)
+                    {
+                        <img src="~/img/products/@item.Photo" alt="Product Photo" class="thumb" />
+                    }
+                    else
+                    {
+                     <img src="~/img/products/placeholder.gif" alt="Product Photo" class="thumb" />
+
+                    }
+                </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ProductID">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.ProductID">Details</a> |
