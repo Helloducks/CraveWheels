@@ -23,6 +23,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Index">Order Now</a>
                         </li>
+                        <li>
+                            <a class="nav-link text-dark" asp-controller="Shop" asp-action="Cart"></a>
+                        </li>
                         @if (User.IsInRole("Administrator"))
                         {
                          <li class="nav-item">
@@ -32,6 +35,9 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Restaurants" asp-action="Index">Restaurants</a>
                         </li>
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Shop" asp-action="Cart">Cart</a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

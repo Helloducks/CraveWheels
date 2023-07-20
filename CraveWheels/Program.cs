@@ -20,9 +20,10 @@ builder.Services.AddAuthentication().AddGoogle(options =>
     options.ClientId = builder.Configuration.GetSection("Authentication:Google")["ClientId"];
     options.ClientSecret = builder.Configuration.GetSection("Authentication:Google")["ClientSecret"];
 });
+builder.Services.AddSession();
 var app = builder.Build();
 //this is here to add session so that each user can be idintified unqiuely
-builder.Services.AddSession();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -34,7 +35,7 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
